@@ -109,6 +109,7 @@ def preparedSources = tasks.register('prepareSources', Sync) {
     inputs.property('versionTokens', versionTokens)
     from('src') {
         include '**/*.java', '**/*.scala'
+        exclude 'net/bdew/gendustry/forestry/GeneticsHelper.scala'
         filesMatching(['**/Gendustry.scala', '**/package-info.java']) {
             filter { String line ->
                 versionTokens.each { token, value -> line = line.replace(token, value) }
@@ -116,25 +117,40 @@ def preparedSources = tasks.register('prepareSources', Sync) {
             }
         }
     }
+    // Zinc sorts source paths; compile this file first to retain the original
+    // Scala 2.11 names of the two captured ISpeciesRoot fields.
+    from('src/net/bdew/gendustry/forestry/GeneticsHelper.scala') {
+        into '00-legacy-order'
+    }
     into layout.buildDirectory.dir('generated/sources/gendustry')
 }
+
+// Read this interface from bytecode to retain its original bridge argument name.
+// The remaining Java API sources are compiled jointly with Scala.
+def javaFirstSources = [
+        'net/bdew/gendustry/api/ApiaryModifiers.java',
+        'net/bdew/gendustry/api/items/IApiaryUpgrade.java'
+]
 
 sourceSets {
     main {
         java.setSrcDirs(['src'])
-        java.include '**/*.java'
+        java.include javaFirstSources
         scala.setSrcDirs(['src'])
-        scala.exclude '**/*.java'
+        scala.exclude javaFirstSources
         resources.setSrcDirs(['resources'])
     }
 }
 
 // Keep the editable source roots in the IDE model; compile the prepared copies.
 tasks.named('compileJava', JavaCompile) {
-    source = files(preparedSources).asFileTree.matching { include '**/*.java' }
+    source = files(preparedSources).asFileTree.matching { include javaFirstSources }
 }
 tasks.named('compileScala', ScalaCompile) {
-    source = files(preparedSources).asFileTree.matching { include '**/*.scala' }
+    source = files(preparedSources).asFileTree.matching {
+        include '**/*.scala', '**/*.java'
+        exclude javaFirstSources
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -150,6 +166,10 @@ tasks.withType(ScalaCompile).configureEach {
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
     scalaCompileOptions.encoding = 'UTF-8'
+    options.encoding = 'UTF-8'
+    // Full joint compilation preserves Java parameter names and Scala capture
+    // ordering when a later build changes only part of the source tree.
+    scalaCompileOptions.force = true
     // Scala 2.11.1 supports JVM 6/7 targets; the original mod used JVM 6.
     scalaCompileOptions.additionalParameters = ['-target:jvm-1.6']
     scalaCompileOptions.forkOptions.memoryMaximumSize = '1G'
