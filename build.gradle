@@ -1,232 +1,255 @@
-buildscript {
-    configurations.all {
-        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-    }
-    repositories {
-        mavenCentral()
-        mavenLocal()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'scala'
+    id 'maven-publish'
+    id 'eclipse'
+    id 'idea'
+    id 'com.gtnewhorizons.retrofuturagradle' version '2.0.2'
+}
+
+def config = new Properties()
+file('build.properties').withReader('UTF-8') { config.load(it) }
+
+def simpleVersion = config.getProperty('gendustry.version') +
+        providers.gradleProperty('buildnum').map { ".${it}" }.getOrElse('')
+version = "${simpleVersion}-mc${config.getProperty('minecraft.version')}"
+group = 'net.bdew'
+
+base {
+    archivesName = 'gendustry'
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(8)
+    withSourcesJar()
+}
+
+// Forge supplies Scala 2.11.1 at runtime.
+scala.scalaVersion = '2.11.1'
+configurations.configureEach {
+    resolutionStrategy.eachDependency {
+        if (requested.group == 'org.scala-lang' && requested.version?.startsWith('2.11.') &&
+                requested.name in ['scala-library', 'scala-compiler', 'scala-reflect']) {
+            useVersion('2.11.1')
+            because('Match the Scala runtime supplied by Forge 1.12.2')
         }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
-        maven {
-            name = "gradle plugins"
-            url = "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.0.9"
     }
 }
 
-apply plugin: 'scala'
-apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'com.matthewprenger.cursegradle'
-
-file "build.properties" withReader {
-    def prop = new Properties()
-    prop.load(it)
-    ext.config = new ConfigSlurper().parse prop
-}
-
-if (project.hasProperty('forgeOverride')) {
-    config.forge.version = forgeOverride
-}
-
-if (project.hasProperty('buildnum')) {
-    ext.simpleVersion = "${config.gendustry.version}.${project.buildnum}"
-} else {
-    ext.simpleVersion = "${config.gendustry.version}-DEV"
-}
-
-version = simpleVersion + '-mc' + config.minecraft.version
-ext.myApiVersion = config.gendustry.api.version
-
-group = "net.bdew"
-archivesBaseName = "gendustry"
+def versionTokens = [
+        BDLIB_VER: config.getProperty('bdlib.version'),
+        GENDUSTRY_VER: simpleVersion,
+        GENDUSTRY_APIVER: config.getProperty('gendustry.api.version')
+]
 
 minecraft {
-    version = "${config.minecraft.version}-${config.forge.version}"
-    mappings = "${config.minecraft.mappings}"
-    makeObfSourceJar = false
-    replace("BDLIB_VER", config.bdlib.version)
-    replace("GENDUSTRY_VER", simpleVersion.toString())
-    replace("GENDUSTRY_APIVER", myApiVersion)
+    mcVersion = config.getProperty('minecraft.version')
+    def mappings = config.getProperty('minecraft.mappings').split('_', 2)
+    mcpMappingChannel = mappings[0]
+    mcpMappingVersion = mappings[1]
+    username = 'Developer'
 }
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven {
-        name = "bdew"
-        url = "https://jenkins.bdew.net/maven"
+        name = 'GTNH Maven'
+        url = uri('https://nexus.gtnewhorizons.com/repository/public/')
+        content { includeGroup 'com.gtnewhorizons' }
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Curse Maven'
+                url = uri('https://cursemaven.com')
+            }
+        }
+        filter { includeGroup 'curse.maven' }
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Modrinth'
+                url = uri('https://api.modrinth.com/maven')
+            }
+        }
+        filter { includeGroup 'maven.modrinth' }
     }
     maven {
-        name "JEI"
-        url "http://dvs1.progwml6.com/files/maven"
+        name = 'IC2'
+        url = uri('https://maven.ic2.player.to')
+        content { includeGroup 'net.industrial-craft' }
     }
     maven {
-        name = "ic2"
-        url = "http://maven.ic2.player.to/"
+        name = 'BlameJared'
+        url = uri('https://maven.blamejared.com')
+        content { includeGroup 'net.darkhax.tesla' }
     }
     maven {
-        name "HWYLA"
-        url "http://tehnut.info/maven"
-    }
-    maven {
-        name = "tesla"
-        url = "http://maven.epoxide.xyz"
-    }
-    maven {
-        name = "CoFH Maven"
-        url = "http://maven.covers1624.net"
-    }
-    ivy {
-        name "BuildCraft"
-        artifactPattern "http://www.mod-buildcraft.com/releases/BuildCraft/[revision]/[module]-[revision].[ext]"
+        name = 'CoFH'
+        url = uri('https://maven.covers1624.net')
+        content { includeGroup 'cofh' }
     }
 }
 
 dependencies {
-    compile "net.bdew:bdlib:${config.bdlib.version}-mc${config.minecraft.version}:dev"
-//    deobfCompile "com.mod-buildcraft:buildcraft:${config.buildcraft.version}"
-    compile "net.industrial-craft:industrialcraft-2:${config.ic2.version}:api"
-    compile "net.sengir.forestry:forestry_${config.minecraft.version}:${config.forestry.version}:api"
-
-    deobfCompile "mezz.jei:jei_${config.minecraft.version}:${config.jei.version}"
-    deobfCompile "mcp.mobius.waila:Hwyla:${config.hwyla.version}"
-
-    deobfCompile "cofh:RedstoneFlux:${config.rfapi.version}:universal"
-    compile "net.darkhax.tesla:Tesla-${config.tesla.version}"
+    implementation rfg.deobf("curse.maven:bdlib-70496:${config.getProperty('bdlib.file')}")
+    implementation rfg.deobf("curse.maven:forestry-59751:${config.getProperty('forestry.file')}")
+    compileOnly "net.industrial-craft:industrialcraft-2:${config.getProperty('ic2.version')}:api"
+    implementation rfg.deobf("maven.modrinth:kr1RaEqy:${config.getProperty('hwyla.file')}")
+    implementation rfg.deobf("cofh:RedstoneFlux:${config.getProperty('rfapi.version')}:universal")
+    implementation "net.darkhax.tesla:Tesla-${config.getProperty('tesla.version')}"
+    runtimeOnly rfg.deobf("curse.maven:had-enough-items-557549:${config.getProperty('hei.file')}")
 }
 
-
-import org.apache.tools.ant.filters.ReplaceTokens
+// Replace tokens before parsing: Scala 2.11 annotations are not rewritten by
+// RFG's compiler plugin, and the BDLib token is embedded in a dependency string.
+def preparedSources = tasks.register('prepareSources', Sync) {
+    inputs.property('versionTokens', versionTokens)
+    from('src') {
+        include '**/*.java', '**/*.scala'
+        filesMatching(['**/Gendustry.scala', '**/package-info.java']) {
+            filter { String line ->
+                versionTokens.each { token, value -> line = line.replace(token, value) }
+                line
+            }
+        }
+    }
+    into layout.buildDirectory.dir('generated/sources/gendustry')
+}
 
 sourceSets {
     main {
-        scala {
-            srcDir 'src'
+        java.setSrcDirs(['src'])
+        java.include '**/*.java'
+        scala.setSrcDirs(['src'])
+        scala.exclude '**/*.java'
+        resources.setSrcDirs(['resources'])
+    }
+}
+
+// Keep the editable source roots in the IDE model; compile the prepared copies.
+tasks.named('compileJava', JavaCompile) {
+    source = files(preparedSources).asFileTree.matching { include '**/*.java' }
+}
+tasks.named('compileScala', ScalaCompile) {
+    source = files(preparedSources).asFileTree.matching { include '**/*.scala' }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
+tasks.withType(ScalaCompile).configureEach {
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+    scalaCompileOptions.encoding = 'UTF-8'
+    // Scala 2.11.1 supports JVM 6/7 targets; the original mod used JVM 6.
+    scalaCompileOptions.additionalParameters = ['-target:jvm-1.6']
+    scalaCompileOptions.forkOptions.memoryMaximumSize = '1G'
+}
+
+tasks.named('processResources', ProcessResources) {
+    inputs.property('versionTokens', versionTokens)
+    filesMatching('mcmod.info') {
+        filter(ReplaceTokens, tokens: versionTokens)
+    }
+    exclude '**/*.psd'
+}
+
+// RFG writes the installable SRG jar through reobfJar; retain a distinct dev jar.
+tasks.named('jar', Jar) {
+    archiveClassifier = 'dev'
+    exclude '**/*.psd'
+}
+
+tasks.register('apiJar', Jar) {
+    dependsOn tasks.named('classes')
+    archiveClassifier = 'api'
+    from(sourceSets.main.output) { include 'net/bdew/gendustry/api/**' }
+    from(sourceSets.main.allSource) { include 'net/bdew/gendustry/api/**' }
+    from('api-changelog.md')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named('sourcesJar', Jar) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named('assemble') {
+    dependsOn tasks.named('apiJar')
+}
+
+tasks.withType(Jar).configureEach {
+    exclude '**/*.psd'
+    filesMatching(['**/Gendustry.scala', '**/package-info.java']) {
+        filter { String line ->
+            versionTokens.each { token, value -> line = line.replace(token, value) }
+            line
         }
-        resources {
-            srcDir 'resources'
+    }
+}
+
+tasks.register('verifyArtifacts') {
+    group = 'verification'
+    description = 'Checks the installable jar, version tokens and JVM bytecode targets.'
+    def modJar = tasks.named('reobfJar').flatMap { it.archiveFile }
+    inputs.file(modJar)
+    dependsOn tasks.named('reobfJar')
+    doLast {
+        def zip = new java.util.zip.ZipFile(modJar.get().asFile)
+        try {
+            def metadata = new groovy.json.JsonSlurper().parse(
+                    zip.getInputStream(zip.getEntry('mcmod.info')))
+            assert metadata[0].modid == 'gendustry'
+            assert metadata[0].version == simpleVersion
+            assert zip.getEntry('net/bdew/gendustry/Gendustry.class') != null
+            assert zip.getEntry('net/bdew/gendustry/api/package-info.class') != null
+
+            int scalaClasses = 0
+            int javaClasses = 0
+            zip.entries().each { entry ->
+                assert !entry.name.endsWith('.psd') : "Unexpected texture source: ${entry.name}"
+                if (entry.name.endsWith('.class')) {
+                    assert entry.name.startsWith('net/bdew/gendustry/') :
+                            "Unexpected bundled dependency: ${entry.name}"
+                    byte[] bytes = zip.getInputStream(entry).withCloseable { it.bytes }
+                    int major = ((bytes[6] & 0xff) << 8) | (bytes[7] & 0xff)
+                    boolean javaApi = entry.name.startsWith('net/bdew/gendustry/api/')
+                    assert major == (javaApi ? 52 : 50) :
+                            "Unexpected JVM target ${major}: ${entry.name}"
+                    String constants = new String(bytes, java.nio.charset.StandardCharsets.ISO_8859_1)
+                    versionTokens.keySet().each { token ->
+                        assert !constants.contains(token) : "Unresolved ${token}: ${entry.name}"
+                    }
+                    if (javaApi) { javaClasses++ } else { scalaClasses++ }
+                }
+            }
+            assert scalaClasses > 0 && javaClasses > 0
+            logger.lifecycle("Verified ${scalaClasses} JVM 6 Scala classes and ${javaClasses} JVM 8 API classes")
+        } finally {
+            zip.close()
         }
     }
 }
 
-processResources {
-    inputs.property "tokens", minecraft.replacements
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        filter(ReplaceTokens, tokens: minecraft.replacements)
-    }
-
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
+tasks.named('check') {
+    dependsOn tasks.named('verifyArtifacts')
 }
-
-task apiJar(type: Jar, dependsOn: 'classes') {
-    from(sourceSets.main.output) {
-        include 'net/bdew/gendustry/api/**'
-    }
-    
-    from(file('api-changelog.md'))
-
-    duplicatesStrategy "exclude"
-
-    extension = 'jar'
-    classifier = 'api'
-}
-
-task sourceJarReal(type: Jar) {
-    classifier "sources"
-}
-
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    exclude "**/*.psd"
-    classifier "dev"
-    duplicatesStrategy "exclude"
-}
-
-
-jar {
-    exclude "**/*.psd"
-}
-
-afterEvaluate { project ->
-    // Fudge the inputs of api/source jars so we get the version after replacements
-    tasks.getByPath(":sourceJarReal").from(tasks.getByPath(":sourceMainScala").outputs.files)
-    tasks.getByPath(":apiJar").from(tasks.getByPath(":sourceMainScala").outputs.files, {
-        include 'net/bdew/gendustry/api/**'
-    })
-}
-
-artifacts {
-    archives sourceJar
-    archives deobfJar
-    archives apiJar
-}
-
-apply plugin: 'maven-publish'
 
 publishing {
     publications {
         maven(MavenPublication) {
-            artifact deobfJar
-            artifact sourceJarReal
-            artifact apiJar
-        }
-    }
-    repositories {
-        maven {
-            url "file://var/www/maven"
-        }
-    }
-}
-
-curseforge {
-    apiKey = project.hasProperty("curseForgeApiKey") ? project.curseForgeApiKey : ""
-    project {
-        id = config.curseforge.id
-
-        releaseType = "alpha"
-        changelog = project.hasProperty("changelog") ? project.changelog : "No changelog available"
-
-        addGameVersion config.minecraft.version
-        addGameVersion "1.12"
-        addGameVersion "1.12.1"
-
-        mainArtifact(jar) {
-            displayName = "Gendustry ${simpleVersion} (MC ${config.minecraft.version})"
-        }
-
-        addArtifact(deobfJar) {
-            displayName = "Gendustry ${simpleVersion} Deobfuscated (MC ${config.minecraft.version})"
-        }
-
-        addArtifact(sourceJarReal) {
-            displayName = "Gendustry ${simpleVersion} Source (MC ${config.minecraft.version})"
-        }
-
-        addArtifact(apiJar) {
-            displayName = "Gendustry ${simpleVersion} API (MC ${config.minecraft.version})"
-        }
-
-        relations {
-            requiredLibrary 'bdlib'
-            requiredLibrary 'forestry'
-            optionalLibrary 'waila'
-            optionalLibrary 'buildcraft'
-            optionalLibrary 'cofhcore'
-            optionalLibrary 'jei'
-            optionalLibrary 'tesla'
+            artifact tasks.named('reobfJar')
+            artifact tasks.named('jar')
+            artifact tasks.named('sourcesJar')
+            artifact tasks.named('apiJar')
         }
     }
 }
