@@ -161,6 +161,30 @@ class TileApiary extends TileExtended
     world.notifyNeighborsOfStateChange(pos, BlockApiary, true)
   })
 
+  private[this] var coversPresent: Boolean = scanForCovers()
+
+  private def scanForCovers(): Boolean = {
+    val coverSlots = covers.valuesIterator
+    while (coverSlots.hasNext) {
+      if (coverSlots.next().value.isDefined) return true
+    }
+    false
+  }
+
+  override def onCoversChanged(): Unit = {
+    super.onCoversChanged()
+    coversPresent = scanForCovers()
+  }
+
+  override def doLoad(kind: UpdateKind.Value, t: NBTTagCompound): Unit = {
+    super.doLoad(kind, t)
+    coversPresent = scanForCovers()
+  }
+
+  override def tickCovers(): Unit = {
+    if (coversPresent) super.tickCovers()
+  }
+
   def getUpgrade(stack: ItemStack) = stack.getItem.asInstanceOf[IApiaryUpgrade]
   def isUpgrade(stack: ItemStack) = !stack.isEmpty && stack.getItem.isInstanceOf[IApiaryUpgrade]
 
