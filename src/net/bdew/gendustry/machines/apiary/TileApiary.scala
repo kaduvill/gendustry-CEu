@@ -128,7 +128,12 @@ class TileApiary extends TileExtended
 
     errorConditions.withSuspendedUpdates {
       val canWork = logic.canWork
-      val powered = world.isBlockIndirectlyGettingPowered(pos) > 0
+      // These modes do not use the redstone signal, so don't read 6 faces...
+      val powered =
+        if ((rsmode :== RSMode.ALWAYS) || (rsmode :== RSMode.NEVER))
+          false
+        else
+          world.isBlockIndirectlyGettingPowered(pos) > 0
       errorConditions.setCondition((rsmode :== RSMode.RS_OFF) && powered, ForestryErrorStates.disabledRedstone)
       errorConditions.setCondition((rsmode :== RSMode.RS_ON) && !powered, ForestryErrorStates.noRedstone)
       errorConditions.setCondition(rsmode :== RSMode.NEVER, GendustryErrorStates.Disabled)
