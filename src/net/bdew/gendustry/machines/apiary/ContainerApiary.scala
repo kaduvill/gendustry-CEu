@@ -30,6 +30,9 @@ class ContainerApiary(val te: TileApiary, player: EntityPlayer) extends BaseCont
     te.owner := player.getGameProfile
   }
 
+  if (!te.getWorld.isRemote)
+    te.refreshRequested = true
+
   class SlotUpgrade(inv: IInventory, slot: Int, x: Int, y: Int) extends SlotValidating(inv, slot, x, y) {
     // Fixes glitch in nei mouse scroll support
     override def isItemValid(stack: ItemStack): Boolean = stack == this.getStack || super.isItemValid(stack)

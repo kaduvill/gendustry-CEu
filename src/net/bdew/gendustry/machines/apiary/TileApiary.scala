@@ -111,6 +111,8 @@ class TileApiary extends TileExtended
     }
   }
 
+  private[apiary] var refreshRequested = false
+
   var tickCount = Random.nextInt(256)
 
   clientTick.listen(() => {
@@ -127,6 +129,10 @@ class TileApiary extends TileExtended
     movePrincess = false
 
     errorConditions.withSuspendedUpdates {
+      if (refreshRequested) {
+        refreshRequested = false
+        logic.clearCachedValues()
+      }
       val canWork = logic.canWork
       // These modes do not use the redstone signal, so don't read 6 faces...
       val powered =
