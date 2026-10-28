@@ -139,7 +139,7 @@ gendustry.rsmode.rs_off=Disable on redstone
 
 gendustry.label.items=%s Items
 
-gendustry.label.shift=<Press SHIFT for more info>
+gendustry.label.shift=<Press SNEAK for more info>
 
 gendustry.cover.label=Cover: %s
 

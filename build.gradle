@@ -97,6 +97,7 @@ dependencies {
     implementation rfg.deobf("curse.maven:bdlib-70496:${config.getProperty('bdlib.file')}")
     implementation rfg.deobf("curse.maven:forestry-59751:${config.getProperty('forestry.file')}")
     compileOnly "net.industrial-craft:industrialcraft-2:${config.getProperty('ic2.version')}:api"
+    implementation rfg.deobf('curse.maven:the-one-probe-245211:2667280') // TOP 1.12-1.4.28
     implementation rfg.deobf("maven.modrinth:kr1RaEqy:${config.getProperty('hwyla.file')}")
     implementation rfg.deobf("cofh:RedstoneFlux:${config.getProperty('rfapi.version')}:universal")
     implementation "net.darkhax.tesla:Tesla-${config.getProperty('tesla.version')}"

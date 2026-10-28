@@ -22,7 +22,7 @@ import net.bdew.gendustry.machines.apiary.upgrades.Upgrades
 import net.bdew.gendustry.misc._
 import net.bdew.gendustry.recipes.{ChargeRecipe, GeneRecipe}
 import net.minecraft.command.CommandHandler
-import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.{Loader, Mod}
 import net.minecraftforge.fml.common.Mod.EventHandler
 import net.minecraftforge.fml.common.event._
 import net.minecraftforge.fml.common.network.NetworkRegistry
@@ -104,6 +104,9 @@ object Gendustry {
     }
 
     FMLInterModComms.sendMessage("waila", "register", "net.bdew.gendustry.waila.WailaHandler.loadCallback")
+    if (Loader.isModLoaded("theoneprobe")) {
+      FMLInterModComms.sendFunctionMessage("theoneprobe", "getTheOneProbe", "net.bdew.gendustry.top.TopRegistration")
+    }
   }
 
   @EventHandler
