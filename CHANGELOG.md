@@ -5,3 +5,4 @@
 - Added The One Probe integration based on the original Waila integration design
 - Adopt Forestry Apiary flower cache refresh when opening Industrial Apiary GUI
 - Fixed Advanced Mutatron sapling duplication when double-clicking the output (upstream #299).
+- Improved Industrial Apiary performance when inventories are full by skipping unnecessary NBT comparisons

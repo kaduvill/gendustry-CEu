@@ -321,12 +321,24 @@ class TileApiary extends TileExtended
   override def getQueen = getStackInSlot(slots.queen)
   override def getDrone = getStackInSlot(slots.drone)
 
+  // Recheck capacity on every traversal; BDLib still handles all item transfers.
+  private def slotsWithCapacity(indices: Iterable[Int]): Iterable[Int] = new Iterable[Int] {
+    override def iterator: Iterator[Int] = indices.iterator.filter { slot =>
+      val target = getStackInSlot(slot)
+      target.isEmpty ||
+        (target.getCount < getInventoryStackLimit && target.getCount < target.getMaxStackSize)
+    }
+  }
+
+  private lazy val beeProductSlots = slotsWithCapacity(slots.bees)
+  private lazy val outputProductSlots = slotsWithCapacity(slots.output)
+
   override def addProduct(product: ItemStack, all: Boolean): Boolean = {
     if (!product.isEmpty) {
       var p = product
       if (mods.isAutomated && beeRoot.isMember(product))
-        p = ItemUtils.addStackToSlots(p, this, slots.bees, false)
-      p = ItemUtils.addStackToSlots(p, this, slots.output, false)
+        p = ItemUtils.addStackToSlots(p, this, beeProductSlots, false)
+      p = ItemUtils.addStackToSlots(p, this, outputProductSlots, false)
       return p.isEmpty
     } else true
   }
