@@ -22,4 +22,7 @@ class SlotSelector(inv: TileMutatronAdv, slot: Int, x: Int, y: Int) extends Slot
     return ItemStack.EMPTY
   }
   override def isItemValid(stack: ItemStack) = false
+
+  // Selection previews must not be collected by vanilla's double-click scan.
+  override def canTakeStack(player: EntityPlayer): Boolean = false
 }
