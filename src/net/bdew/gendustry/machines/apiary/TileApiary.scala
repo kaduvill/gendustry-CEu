@@ -9,7 +9,7 @@
 
 package net.bdew.gendustry.machines.apiary
 
-import java.util.{Collections, Locale}
+import java.util.Collections
 
 import com.mojang.authlib.GameProfile
 import forestry.api.apiculture._
@@ -21,12 +21,11 @@ import net.bdew.gendustry.api.blocks.IIndustrialApiary
 import net.bdew.gendustry.api.items.IApiaryUpgrade
 import net.bdew.gendustry.config.Config
 import net.bdew.gendustry.gui.rscontrol.{RSMode, TileRSControllable}
+import net.bdew.gendustry.machines.TileCoverableKeepData
 import net.bdew.gendustry.misc.DataSlotErrorStates
 import net.bdew.gendustry.power.TilePowered
 import net.bdew.lib.Misc
 import net.bdew.lib.PimpVanilla._
-import net.bdew.lib.block.TileKeepData
-import net.bdew.lib.covers.TileCoverable
 import net.bdew.lib.data._
 import net.bdew.lib.data.base.{TileDataSlots, UpdateKind}
 import net.bdew.lib.items.ItemUtils
@@ -45,10 +44,9 @@ class TileApiary extends TileExtended
   with TileDataSlots
   with PersistentInventoryTile
   with SidedInventory
-  with TileKeepData
   with TilePowered
   with TileRSControllable
-  with TileCoverable
+  with TileCoverableKeepData
   with IIndustrialApiary
   with IBeeModifier
   with IBeeListener
@@ -344,12 +342,4 @@ class TileApiary extends TileExtended
   }
 
   override def isValidCover(side: EnumFacing, cover: ItemStack) = true
-
-  override def afterTileBreakSave(t: NBTTagCompound): NBTTagCompound = {
-    // Storing covers is buggy, remove them (they will be dropped automatically)
-    for (x <- EnumFacing.values()) {
-      t.removeTag("cover_" + x.toString.toLowerCase(Locale.US))
-    }
-    t
-  }
 }

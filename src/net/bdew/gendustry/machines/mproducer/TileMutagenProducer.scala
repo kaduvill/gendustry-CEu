@@ -12,11 +12,9 @@ package net.bdew.gendustry.machines.mproducer
 import net.bdew.gendustry.apiimpl.TileWorker
 import net.bdew.gendustry.config.{Fluids, Items}
 import net.bdew.gendustry.fluids.MutagenSources
-import net.bdew.gendustry.machines.FluidPusher
+import net.bdew.gendustry.machines.{FluidPusher, TileCoverableKeepData}
 import net.bdew.gendustry.power.TilePowered
-import net.bdew.lib.block.TileKeepData
 import net.bdew.lib.capabilities.{Capabilities, CapabilityProvider}
-import net.bdew.lib.covers.TileCoverable
 import net.bdew.lib.data._
 import net.bdew.lib.data.base.UpdateKind
 import net.bdew.lib.power.TileBaseProcessor
@@ -24,7 +22,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumFacing
 import net.minecraftforge.fluids._
 
-class TileMutagenProducer extends TileBaseProcessor with TileWorker with TilePowered with TileCoverable with TileKeepData with FluidPusher with CapabilityProvider {
+class TileMutagenProducer extends TileBaseProcessor with TileWorker with TilePowered with TileCoverableKeepData with FluidPusher with CapabilityProvider {
   lazy val cfg = MachineMutagenProducer
 
   val tank = DataSlotTankRestricted("tank", this, cfg.tankSize, Fluids.mutagen, canFillExternal = false).setUpdate(UpdateKind.GUI, UpdateKind.SAVE)

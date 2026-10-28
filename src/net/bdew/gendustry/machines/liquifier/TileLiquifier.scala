@@ -12,11 +12,9 @@ package net.bdew.gendustry.machines.liquifier
 import net.bdew.gendustry.apiimpl.TileWorker
 import net.bdew.gendustry.config.Fluids
 import net.bdew.gendustry.fluids.ProteinSources
-import net.bdew.gendustry.machines.FluidPusher
+import net.bdew.gendustry.machines.{FluidPusher, TileCoverableKeepData}
 import net.bdew.gendustry.power.TilePowered
-import net.bdew.lib.block.TileKeepData
 import net.bdew.lib.capabilities.{Capabilities, CapabilityProvider}
-import net.bdew.lib.covers.TileCoverable
 import net.bdew.lib.data._
 import net.bdew.lib.data.base.UpdateKind
 import net.bdew.lib.power.TileBaseProcessor
@@ -24,7 +22,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumFacing
 import net.minecraftforge.fluids._
 
-class TileLiquifier extends TileBaseProcessor with TileWorker with TilePowered with TileCoverable with TileKeepData with FluidPusher with CapabilityProvider {
+class TileLiquifier extends TileBaseProcessor with TileWorker with TilePowered with TileCoverableKeepData with FluidPusher with CapabilityProvider {
   lazy val cfg = MachineLiquifier
 
   val tank = DataSlotTankRestricted("tank", this, cfg.tankSize, Fluids.protein, canFillExternal = false).setUpdate(UpdateKind.GUI, UpdateKind.SAVE)

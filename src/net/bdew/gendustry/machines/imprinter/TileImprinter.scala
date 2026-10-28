@@ -15,9 +15,8 @@ import net.bdew.gendustry.apiimpl.TileWorker
 import net.bdew.gendustry.compat.ForestryHelper
 import net.bdew.gendustry.config.Items
 import net.bdew.gendustry.items.GeneTemplate
+import net.bdew.gendustry.machines.TileCoverableKeepData
 import net.bdew.gendustry.power.TilePowered
-import net.bdew.lib.block.TileKeepData
-import net.bdew.lib.covers.TileCoverable
 import net.bdew.lib.nbt.NBT
 import net.bdew.lib.power.TileItemProcessor
 import net.minecraft.item.ItemStack
@@ -25,7 +24,7 @@ import net.minecraft.util.EnumFacing
 
 import scala.util.Random
 
-class TileImprinter extends TileItemProcessor with TileWorker with TilePowered with TileCoverable with TileKeepData {
+class TileImprinter extends TileItemProcessor with TileWorker with TilePowered with TileCoverableKeepData {
   lazy val cfg = MachineImprinter
   val outputSlots = Seq(slots.outIndividual)
 

@@ -14,10 +14,9 @@ import net.bdew.gendustry.apiimpl.TileWorker
 import net.bdew.gendustry.compat.FakeMutatronBeeHousing
 import net.bdew.gendustry.config.{Fluids, Items}
 import net.bdew.gendustry.forestry.GeneticsHelper
+import net.bdew.gendustry.machines.TileCoverableKeepData
 import net.bdew.gendustry.power.TilePowered
-import net.bdew.lib.block.TileKeepData
 import net.bdew.lib.capabilities.{Capabilities, CapabilityProvider}
-import net.bdew.lib.covers.TileCoverable
 import net.bdew.lib.data.base.UpdateKind
 import net.bdew.lib.data.{DataSlotGameProfile, DataSlotTankRestricted}
 import net.bdew.lib.power.TileItemProcessor
@@ -25,7 +24,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumFacing
 import net.minecraftforge.fluids._
 
-class TileMutatron extends TileItemProcessor with TileWorker with TilePowered with TileCoverable with IMutatron with TileKeepData with CapabilityProvider {
+class TileMutatron extends TileItemProcessor with TileWorker with TilePowered with TileCoverableKeepData with IMutatron with CapabilityProvider {
   lazy val cfg = MachineMutatron
   val outputSlots = Seq(slots.outIndividual)
 
