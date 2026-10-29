@@ -1,6 +1,6 @@
 1.6.6.1
 
-- a
+- Fixed Scoop and Grafter energy tooltips ignoring the configured display units (in client.config.cfg)
 
 
 1.6.6.0

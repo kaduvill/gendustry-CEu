@@ -10,7 +10,7 @@
 package net.bdew.gendustry.power
 
 import ic2.api.item.{ElectricItem, IElectricItemManager}
-import net.bdew.gendustry.config.Tuning
+import net.bdew.gendustry.config.{Config, Tuning}
 import net.bdew.lib.{DecFormat, Misc}
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -58,5 +58,6 @@ class ItemPoweredEUManager(item: ItemPoweredEU) extends IElectricItemManager {
   }
 
   override def getToolTip(itemStack: ItemStack) =
-    DecFormat.round(getCharge(itemStack)) + " / " + DecFormat.round(getMaxCharge(itemStack)) + " EU"
+    DecFormat.round(item.getCharge(itemStack).toDouble * Config.powerShowMultiplier) + " / " +
+      DecFormat.round(item.maxCharge.toDouble * Config.powerShowMultiplier) + " " + Config.powerShowUnits
 }
