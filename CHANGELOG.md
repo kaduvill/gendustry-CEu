@@ -1,3 +1,8 @@
+1.6.6.1
+
+- a
+
+
 1.6.6.0
 
 - Industrial Apiary should no longer query six sides for redstone every tick when redstone mode does not need it
