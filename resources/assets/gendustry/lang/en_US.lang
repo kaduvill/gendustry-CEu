@@ -2,7 +2,7 @@
 
 tile.gendustry.mutagen_producer.name=Mutagen Producer
 tile.gendustry.mutatron.name=Mutatron
-tile.gendustry.mutatron_advanced.name=Advanced mutatron
+tile.gendustry.mutatron_advanced.name=Advanced Mutatron
 tile.gendustry.industrial_apiary.name=Industrial Apiary
 tile.gendustry.imprinter.name=Genetic Imprinter
 tile.gendustry.sampler.name=Genetic Sampler
@@ -97,7 +97,7 @@ gendustry.label.flowering=Flowering Chance: %s
 gendustry.label.production=Production Modifier: %s
 gendustry.label.territory=Territory: %s
 
-gendustry.label.erase=Place in furance to erase genetic content
+gendustry.label.erase=Place in furnace to erase genetic content
 gendustry.label.recipes=Click to see recipes
 gendustry.label.consume=Consume chance: %s%%
 gendustry.label.mutatron.death=Death chance (ignoble): %s%%
@@ -164,15 +164,15 @@ gendustry.chromosome.FERTILITY=Fertility
 gendustry.chromosome.SIZE=Size
 gendustry.chromosome.HUMIDITY=Humidity
 gendustry.chromosome.SPECIES=Species
-gendustry.chromosome.FIRE_RESIST=Fire resist
-gendustry.chromosome.TEMPERATURE_TOLERANCE=Temperature tolerance
-gendustry.chromosome.HUMIDITY_TOLERANCE=Humidity tolerance
+gendustry.chromosome.FIRE_RESIST=Fire Resist
+gendustry.chromosome.TEMPERATURE_TOLERANCE=Temperature Tolerance
+gendustry.chromosome.HUMIDITY_TOLERANCE=Humidity Tolerance
 gendustry.chromosome.PLANT=Plant
 gendustry.chromosome.EFFECT=Effect
-gendustry.chromosome.CAVE_DWELLING=Cave dwelling
+gendustry.chromosome.CAVE_DWELLING=Cave Dwelling
 gendustry.chromosome.MATURATION=Maturation
 gendustry.chromosome.NOCTURNAL=Nocturnal
-gendustry.chromosome.TOLERANT_FLYER=Tolerant flyer
+gendustry.chromosome.TOLERANT_FLYER=Tolerant Flyer
 gendustry.chromosome.FRUITS=Fruits
 gendustry.chromosome.SAPPINESS=Sappiness
 gendustry.chromosome.COCOON=Cocoon
@@ -186,7 +186,7 @@ gendustry.chromosome.NEVER_SLEEPS=Never Sleeps
 
 gendustry.chromosome.PRIMARY=Primary
 gendustry.chromosome.SECONDARY=Secondary
-gendustry.chromosome.PH_TOLERANCE=pH tolerance
+gendustry.chromosome.PH_TOLERANCE=pH Tolerance
 gendustry.chromosome.STEM=Stem
 
 gendustry.allele.false=False
@@ -282,10 +282,10 @@ itemGroup.bdew.templates=Genetic Templates
 itemGroup.bdew.samples=Genetic Samples
 itemGroup.bdew.hives=Custom Beehives
 
-gendustry.errorstate.ok=No error
+gendustry.errorstate.ok=No Error
 
 gendustry.errorstate.disabled.description=Disabled
-gendustry.errorstate.disabled.help=The machine is disabled by it's configuration
+gendustry.errorstate.disabled.help=The machine is disabled by its configuration
 
 #this will be moved to bdlib at some point
 bdlib.label.empty=Empty

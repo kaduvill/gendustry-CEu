@@ -1,7 +1,7 @@
 1.6.6.1
 
 - Fixed Scoop and Grafter energy tooltips ignoring the configured display units (in client.config.cfg)
-
+- Fixed English capitalization and spelling inconsistencies
 
 1.6.6.0
 
