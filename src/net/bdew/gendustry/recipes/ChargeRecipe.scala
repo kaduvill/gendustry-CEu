@@ -32,7 +32,7 @@ object ChargeRecipe extends IForgeRegistryEntry.Impl[IRecipe] with IRecipe {
     for (i <- 0 until inv.getWidth; j <- 0 until inv.getHeight) {
       val stack = inv.getStackInRowAndColumn(i, j)
       if (!stack.isEmpty) {
-        if (stack.getItem.isInstanceOf[ItemPowered])
+        if (stack.getItem.isInstanceOf[ItemPowered] && tool.isEmpty)
           tool = stack
         else if (stack.getItem == Items.REDSTONE)
           redstone += 1

@@ -1,5 +1,6 @@
 1.6.6.1
 
+- Fixed tool's redstone charging recipe consuming extra tools and losing tool metadata
 - Fixed Scoop silk harvesting accepting less than the configured energy cost
 - Fixed repair effects treating Scoop and Grafter power bars as repairable durability
 - Fixed empty Scoop and Grafter power bars appearing only after hovering in some GUIs (upstream #301)

@@ -109,14 +109,16 @@ object ItemCharge {
   }
 
   def craftingResult(item: ItemPoweredBase, stack: ItemStack, added: Long): ItemStack = {
-    val charge = item.getCharge(stack)
+    val charge = whole(item, stack)
     val (n, _) = fraction(item, stack)
     val room = item.maxCharge.toLong - charge
     if (added > room || (added == room && n > 0)) return ItemStack.EMPTY
-    val result = item.stackWithCharge(math.max(0L, charge.toLong + added).toInt)
-    val tag = fractionTag(stack)
+    val result = stack.copy()
+    result.setCount(1)
+    val tag = fractionTag(result)
+    item.setCharge(result, math.max(0L, charge.toLong + added).toInt)
     if (tag != null && charge.toLong + added >= 0 && charge.toLong + added < item.maxCharge)
-      result.getTagCompound.setTag(FractionTag, tag.copy())
+      result.getTagCompound.setTag(FractionTag, tag)
     result
   }
 
