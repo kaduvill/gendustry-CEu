@@ -53,7 +53,8 @@ object IndustrialScoop extends BaseTool("industrial_scoop", Item.ToolMaterial.IR
     if (!player.isSneaking) return EnumActionResult.PASS
     if (world.isRemote) return EnumActionResult.SUCCESS
     val state = world.getBlockState(pos)
-    if (state.getBlock.getHarvestTool(state) == "scoop" && getCharge(stack) >= silktouchCharges && getCharge(stack) >= silktouchCharges) {
+    val silkCost = silktouchCharges.toLong * mjPerCharge.toLong
+    if (state.getBlock.getHarvestTool(state) == "scoop" && silktouchCharges >= 0 && mjPerCharge >= 0 && getCharge(stack).toLong >= silkCost) {
       useCharge(stack, silktouchCharges, player)
       ItemUtils.dropItemToPlayer(world, player, new ItemStack(state.getBlock, 1, state.getBlock.damageDropped(state)))
       world.setBlockToAir(pos)
