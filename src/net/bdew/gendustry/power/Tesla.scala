@@ -10,7 +10,6 @@
 package net.bdew.gendustry.power
 
 import net.bdew.gendustry.config.Tuning
-import net.bdew.lib.Misc
 import net.bdew.lib.capabilities.{CapabilityProvider, CapabilityProviderItem}
 import net.bdew.lib.power.{ItemPoweredBase, TilePoweredBase}
 import net.darkhax.tesla.api.{ITeslaConsumer, ITeslaHolder}
@@ -27,14 +26,10 @@ class TeslaConsumerTile(tile: TilePoweredBase) extends ITeslaConsumer with ITesl
 }
 
 class TeslaConsumerItem(item: ItemPoweredBase, stack: ItemStack) extends ITeslaConsumer with ITeslaHolder {
-  override def getStoredPower: Long = (item.getCharge(stack) * Tesla.ratio).toLong
-  override def getCapacity: Long = (item.maxCharge * Tesla.ratio).floor.toLong
-  override def givePower(amount: Long, simulated: Boolean): Long = {
-    val charge = item.getCharge(stack)
-    val canCharge = Misc.clamp(item.maxCharge.toFloat - charge, 0F, amount.toFloat / Tesla.ratio).floor.toInt
-    if (!simulated) item.setCharge(stack, charge + canCharge)
-    return (canCharge * Tesla.ratio).floor.toLong
-  }
+  override def getStoredPower: Long = ItemCharge.tesla.stored(item, stack)
+  override def getCapacity: Long = ItemCharge.tesla.capacity(item)
+  override def givePower(amount: Long, simulated: Boolean): Long =
+    ItemCharge.tesla.receive(item, stack, amount, simulated)
 }
 
 object Tesla {

@@ -11,7 +11,7 @@ package net.bdew.gendustry.recipes
 
 import net.bdew.gendustry.Gendustry
 import net.bdew.gendustry.config.Tuning
-import net.bdew.gendustry.power.ItemPowered
+import net.bdew.gendustry.power.{ItemCharge, ItemPowered}
 import net.minecraft.init.{Blocks, Items}
 import net.minecraft.inventory.InventoryCrafting
 import net.minecraft.item.crafting.IRecipe
@@ -46,11 +46,7 @@ object ChargeRecipe extends IForgeRegistryEntry.Impl[IRecipe] with IRecipe {
     if (tool.isEmpty || redstone == 0) return ItemStack.EMPTY
 
     val item = tool.getItem.asInstanceOf[ItemPowered]
-    val charge = item.getCharge(tool)
-
-    if ((item.maxCharge - charge) >= redstone * redstoneValue) {
-      item.stackWithCharge(charge + (redstone * redstoneValue))
-    } else ItemStack.EMPTY
+    ItemCharge.craftingResult(item, tool, redstone.toLong * redstoneValue)
   }
 
   override def getRemainingItems(inv: InventoryCrafting): NonNullList[ItemStack] =

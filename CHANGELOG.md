@@ -1,5 +1,8 @@
 1.6.6.1
 
+- Fixed repair effects treating Scoop and Grafter power bars as repairable durability
+- Fixed empty Scoop and Grafter power bars appearing only after hovering in some GUIs (upstream #301)
+- Fixed Scoop and Grafter rejecting small RF charges, (EIO Wired Chargers e.g) (upstream #290)
 - Fixed Scoop and Grafter energy tooltips ignoring the configured display units (in client.config.cfg)
 - Fixed English capitalization and spelling inconsistencies
 

@@ -11,7 +11,6 @@ package net.bdew.gendustry.power
 
 import net.bdew.gendustry.compat.PowerProxy
 import net.bdew.gendustry.config.Tuning
-import net.bdew.lib.Misc
 import net.bdew.lib.capabilities.{CapabilityProvider, CapabilityProviderItem}
 import net.bdew.lib.power.{ItemPoweredBase, TilePoweredBase}
 import net.minecraft.item.ItemStack
@@ -40,16 +39,12 @@ class EnergyHandlerTile(tile: TilePoweredBase) extends IEnergyStorage {
 }
 
 class EnergyHandlerItem(item: ItemPoweredBase, stack: ItemStack) extends IEnergyStorage {
-  override def getEnergyStored: Int = (item.getCharge(stack) * ForgePower.ratio).toInt
-  override def getMaxEnergyStored: Int = (item.maxCharge * ForgePower.ratio).toInt
+  override def getEnergyStored: Int = math.min(Int.MaxValue.toLong, ItemCharge.forge.stored(item, stack)).toInt
+  override def getMaxEnergyStored: Int = math.min(Int.MaxValue.toLong, ItemCharge.forge.capacity(item)).toInt
 
   override def canReceive: Boolean = true
-  override def receiveEnergy(maxReceive: Int, simulate: Boolean): Int = {
-    val charge = item.getCharge(stack)
-    val canCharge = Misc.clamp(item.maxCharge.toFloat - charge, 0F, maxReceive.toFloat / ForgePower.ratio).floor.toInt
-    if (!simulate) item.setCharge(stack, charge + canCharge)
-    return (canCharge * ForgePower.ratio).floor.toInt
-  }
+  override def receiveEnergy(maxReceive: Int, simulate: Boolean): Int =
+    ItemCharge.forge.receive(item, stack, maxReceive, simulate).toInt
 
   override def canExtract: Boolean = false
   override def extractEnergy(maxExtract: Int, simulate: Boolean): Int = 0

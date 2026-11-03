@@ -9,9 +9,8 @@
 
 package net.bdew.gendustry.power
 
-import ic2.api.item.{ElectricItem, IElectricItemManager, ISpecialElectricItem}
+import ic2.api.item.{IElectricItemManager, ISpecialElectricItem}
 import net.bdew.gendustry.compat.PowerProxy
-import net.bdew.gendustry.config.Tuning
 import net.bdew.lib.power.ItemPoweredBase
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.item.ItemStack
@@ -19,7 +18,6 @@ import net.minecraftforge.fml.common.Optional
 
 @Optional.Interface(modid = PowerProxy.IC2_MOD_ID, iface = "ic2.api.item.ISpecialElectricItem")
 trait ItemPoweredEU extends ItemPoweredBase with ISpecialElectricItem {
-  private lazy val ratio = Tuning.getSection("Power").getFloat("EU_MJ_Ratio")
   private lazy val manager = new ItemPoweredEUManager(this)
 
   override def useCharge(stack: ItemStack, uses: Int, player: EntityLivingBase) = {
