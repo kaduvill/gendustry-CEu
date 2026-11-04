@@ -335,7 +335,7 @@ class TileApiary extends TileExtended
     if (!product.isEmpty) {
       var p = product
       if (mods.isAutomated && beeRoot.isMember(product))
-        p = ItemUtils.addStackToSlots(p, this, beeProductSlots, false)
+        p = ItemUtils.addStackToSlots(p, this, beeProductSlots, true)
       p = ItemUtils.addStackToSlots(p, this, outputProductSlots, false)
       return p.isEmpty
     } else true
