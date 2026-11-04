@@ -187,35 +187,56 @@ tasks.withType(ScalaCompile).configureEach {
     scalaCompileOptions.forkOptions.memoryMaximumSize = '1G'
 }
 
-// Scala 2.11 emits a singleton field assignment from the constructor. Newer JVMs
-// reject that write when MODULE$ is final, so remove final from this one field.
+// Scala 2.11 assigns singleton and trait-val fields outside JVM initializers.
+// Clear final only when an actual write violates the initializer restriction.
+// Leave ordinary final fields and all method bodies unchanged.
 tasks.named('compileScala', ScalaCompile) {
     doLast {
-        def classFile = destinationDirectory.file('net/bdew/gendustry/machines/apiary/BlockApiary$.class').get().asFile
-        if (!classFile.isFile()) {
-            throw new GradleException("Missing compiled singleton class: ${classFile}")
-        }
-
-        def reader = new ClassReader(classFile.bytes)
-        def writer = new ClassWriter(0)
-        def patched = false
-        reader.accept(new ClassVisitor(Opcodes.ASM9, writer) {
-            @Override
-            FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
-                if (name == 'MODULE$' && (access & Opcodes.ACC_STATIC) != 0) {
-                    if ((access & Opcodes.ACC_FINAL) == 0) {
-                        throw new GradleException('BlockApiary$.MODULE$ was already non-final')
+        def patchedFields = []
+        fileTree(destinationDirectory).matching { include '**/*.class' }.files.sort().each { classFile ->
+            def reader = new ClassReader(classFile.bytes)
+            def finalFields = [:]
+            def unsafeWrites = new HashSet<String>()
+            reader.accept(new ClassVisitor(Opcodes.ASM9) {
+                @Override
+                FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
+                    if ((access & Opcodes.ACC_FINAL) != 0) {
+                        finalFields[name + ':' + descriptor] = access
                     }
-                    patched = true
-                    access &= ~Opcodes.ACC_FINAL
+                    return null
                 }
-                return super.visitField(access, name, descriptor, signature, value)
+                @Override
+                org.objectweb.asm.MethodVisitor visitMethod(int access, String methodName, String descriptor, String signature, String[] exceptions) {
+                    return new org.objectweb.asm.MethodVisitor(Opcodes.ASM9) {
+                        @Override
+                        void visitFieldInsn(int opcode, String owner, String name, String fieldDescriptor) {
+                            if (owner == reader.className &&
+                                    ((opcode == Opcodes.PUTSTATIC && methodName != '<clinit>') ||
+                                     (opcode == Opcodes.PUTFIELD && methodName != '<init>'))) {
+                                unsafeWrites.add(name + ':' + fieldDescriptor)
+                            }
+                        }
+                    }
+                }
+            }, ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES)
+            def targets = unsafeWrites.findAll { finalFields.containsKey(it) } as Set
+            if (!targets.isEmpty()) {
+                def writer = new ClassWriter(reader, 0)
+                reader.accept(new ClassVisitor(Opcodes.ASM9, writer) {
+                    @Override
+                    FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
+                        if (targets.contains(name + ':' + descriptor)) {
+                            access &= ~Opcodes.ACC_FINAL
+                            patchedFields.add(reader.className + '.' + name)
+                        }
+                        return super.visitField(access, name, descriptor, signature, value)
+                    }
+                }, 0)
+                classFile.bytes = writer.toByteArray()
             }
-        }, 0)
-        if (!patched) {
-            throw new GradleException('Could not find BlockApiary$.MODULE$ to patch')
         }
-        classFile.bytes = writer.toByteArray()
+        logger.lifecycle("Patched ${patchedFields.size()} Scala final fields assigned outside JVM initializers")
+        patchedFields.sort().each { logger.info("Patched ${it}") }
     }
 }
 
