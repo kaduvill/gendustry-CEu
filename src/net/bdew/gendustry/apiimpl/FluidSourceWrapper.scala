@@ -9,6 +9,8 @@
 
 package net.bdew.gendustry.apiimpl
 
+import java.util.Locale
+
 import net.bdew.gendustry.Gendustry
 import net.bdew.gendustry.api.registries.IFluidSourceRegistry
 import net.bdew.gendustry.fluids.FluidSourceRegistry
@@ -24,7 +26,7 @@ class FluidSourceWrapper(fluidId: String, registry: FluidSourceRegistry) extends
   private val values = mutable.Map.empty[Item, mutable.Map[Int, Int]]
   private var merged = false
 
-  override def getFluid: Fluid = FluidRegistry.getFluid(fluidId)
+  override def getFluid: Fluid = FluidRegistry.getFluid(fluidId.toLowerCase(Locale.ROOT))
 
   override def canAdd: Boolean = !merged
 

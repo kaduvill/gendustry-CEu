@@ -1,5 +1,6 @@
 1.6.6.1
 
+- Fixed public fluid API getters returning null for registered fluids
 - Fixed ignoble status carrying over between custom hive drops
 - Fixed automated Industrial Apiaries putting offspring in princess/queen slot in exact circumstances
 - Fixed tool's redstone charging recipe consuming extra tools and losing tool metadata
