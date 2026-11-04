@@ -19,7 +19,8 @@ import net.minecraft.world.IBlockAccess
 case class HiveDrop(chance: Double, species: IAlleleBeeSpecies, ignobleShare: Double, additional: List[ItemStack]) extends IHiveDrop {
   val beeRoot = BeeManager.beeRoot
   val tpl = beeRoot.getTemplate(species.getUID)
-  val individual = beeRoot.templateAsIndividual(tpl)
+  // Harvests can change the natural flag, so each drop needs its own bee.
+  def individual = beeRoot.templateAsIndividual(tpl)
 
   override def getBeeType(world: IBlockAccess, pos: BlockPos): IBee = individual
   override def getIgnobleChance(world: IBlockAccess, pos: BlockPos, fortune: Int): Double = ignobleShare
