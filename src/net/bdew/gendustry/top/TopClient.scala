@@ -1,5 +1,7 @@
 package net.bdew.gendustry.top
 
+import java.lang.ref.WeakReference
+
 import net.bdew.gendustry.Gendustry
 import net.bdew.gendustry.compat.TooltipText
 import net.bdew.gendustry.config.Config
@@ -21,12 +23,14 @@ object TopClient {
 
     mc.world.getTileEntity(element.pos) match {
       case tile: TilePowered with TileDataSlots =>
+        val cachedTile = if (element.clientTile == null) null else element.clientTile.get
+        val tileChanged = cachedTile ne tile
         val sneaking = mc.player.isSneaking
-        if ((element.clientTile ne tile) || element.clientLines == null || element.detailed != sneaking ||
+        if (tileChanged || element.clientLines == null || element.detailed != sneaking ||
           element.language != mc.gameSettings.language || element.units != Config.powerShowUnits ||
           element.multiplier != Config.powerShowMultiplier) {
           try {
-            if ((element.clientTile ne tile) && element.guiData != null)
+            if (tileChanged && element.guiData != null)
               tile.doLoad(UpdateKind.GUI, element.guiData)
             var result = if (element.guiData == null) Vector.empty[String] else TooltipText.dataSlots(tile, showPower = false).toVector
             tile match {
@@ -39,7 +43,7 @@ object TopClient {
               Gendustry.logWarnException("Error in TOP handler", e)
               element.clientLines = Vector("[%s%s%s]".format(TextFormatting.RED, e.toString, TextFormatting.RESET))
           }
-          element.clientTile = tile
+          if (tileChanged) element.clientTile = new WeakReference(tile)
           element.detailed = sneaking
           element.language = mc.gameSettings.language
           element.units = Config.powerShowUnits

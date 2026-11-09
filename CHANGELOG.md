@@ -1,6 +1,6 @@
 1.6.6.2
 
-- a
+- Small internal fix for TOP compat
 
 1.6.6.1
 

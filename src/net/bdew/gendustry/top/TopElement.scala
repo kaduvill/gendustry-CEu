@@ -1,5 +1,7 @@
 package net.bdew.gendustry.top
 
+import java.lang.ref.WeakReference
+
 import io.netty.buffer.ByteBuf
 import mcjty.theoneprobe.api.{IElement, IElementFactory}
 import net.minecraft.nbt.NBTTagCompound
@@ -11,7 +13,8 @@ import net.minecraftforge.fml.common.network.ByteBufUtils
 /** TOP transports the same GUI snapshot that Waila supplies to the client tile. */
 class TopElement(val dimension: Int, val pos: BlockPos, val block: ResourceLocation,
                  val side: EnumFacing, val guiData: NBTTagCompound) extends IElement {
-  private[top] var clientTile: TileEntity = null
+  // TOP can retain this element after disconnecting; don't keep its world alive.
+  private[top] var clientTile: WeakReference[TileEntity] = null
   private[top] var clientLines: Vector[String] = null
   private[top] var detailed = false
   private[top] var language: String = null
