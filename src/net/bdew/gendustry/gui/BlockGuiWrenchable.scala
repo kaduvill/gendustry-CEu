@@ -52,6 +52,7 @@ trait BlockGuiWrenchable extends Block /*with IDismantleable*/ {
   //  override def canDismantle(player: EntityPlayer, world: World,pos: BlockPos): Boolean = true
 
   def tryFluidInteract(world: World, pos: BlockPos, player: EntityPlayer, side: EnumFacing): Boolean = {
+    if (world.isRemote) return false
     val original = player.getHeldItemMainhand
     if (original.isEmpty) return false
     val copy = original.copy()

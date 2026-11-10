@@ -1,6 +1,7 @@
 1.6.6.2
 
 - Small internal fix for TOP integration
+- Made fluid-container hand interactions server-authoritative
 
 1.6.6.1
 
